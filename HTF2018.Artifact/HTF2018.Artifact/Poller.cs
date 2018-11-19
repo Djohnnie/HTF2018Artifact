@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RestSharp;
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,7 +12,8 @@ namespace HTF2018.Artifact
         private Random _randomGenerator = new Random();
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private Task _pollerTask;
-        private Status _status;
+        private readonly RestClient _restClient;
+        private Status? _status;
 
         static Poller()
         {
@@ -18,6 +21,7 @@ namespace HTF2018.Artifact
 
         private Poller()
         {
+            _restClient = new RestClient("http://localhost:52100");
         }
 
         public static Poller Instance
@@ -28,7 +32,7 @@ namespace HTF2018.Artifact
             }
         }
 
-        public Status Status
+        public Status? Status
         {
             get { return _status; }
         }
@@ -56,8 +60,22 @@ namespace HTF2018.Artifact
 
         private async Task Poll()
         {
-            await Task.Delay(10000);
-            _status = _randomGenerator.Next(0, 2) == 0 ? Status.Successful : Status.Unsuccessful;
+            try
+            {
+                _status = null;
+                await Task.Delay(500);
+                var sw = Stopwatch.StartNew();
+                RestRequest request = new RestRequest("dashboard/history/status", Method.GET);
+                request.AddHeader("htf-identification", "7f395e9b-8eb2-4829-b948-49ca2df65b2c");
+                var response = await _restClient.ExecuteTaskAsync<History>(request);
+                if (response.IsSuccessful && response.Data != null)
+                {
+                    _status = response.Data.Status;
+                }
+                sw.Stop();
+                Debug.WriteLine($"POLLING TOOK {sw.ElapsedMilliseconds}ms");
+            }
+            catch { /* DO NOTHING */ }
         }
     }
 }
