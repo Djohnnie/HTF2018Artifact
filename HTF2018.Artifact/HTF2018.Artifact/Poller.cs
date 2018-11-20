@@ -24,18 +24,9 @@ namespace HTF2018.Artifact
             _restClient = new RestClient("http://localhost:52100");
         }
 
-        public static Poller Instance
-        {
-            get
-            {
-                return _instance;
-            }
-        }
+        public static Poller Instance => _instance;
 
-        public Status? Status
-        {
-            get { return _status; }
-        }
+        public Status? Status => _status;
 
         public void Start()
         {

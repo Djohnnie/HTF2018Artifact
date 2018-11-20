@@ -6,6 +6,7 @@ namespace HTF2018.Artifact
     class Program
     {
         private static readonly Poller _poller = Poller.Instance;
+        private static readonly Animator _animator = Animator.Instance;
 
         static void Main(string[] args)
         {
@@ -29,6 +30,7 @@ namespace HTF2018.Artifact
             Console.WriteLine("------------------------");
             Console.WriteLine();
             Console.WriteLine($"{_poller.Status}");
+            _animator.Animate(_poller.Status);
             Console.WriteLine();
             Console.Write("Press the ESC key to shut down this console! ");
             Thread.Sleep(100);
