@@ -1,78 +1,99 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading;
+using Unosquare.RaspberryIO;
+using Unosquare.RaspberryIO.Gpio;
 
 namespace HTF2018.Artifact
 {
     public class Leds
     {
-        private Triangle _t01 = new Triangle();
-        private Triangle _t02 = new Triangle();
-        private Triangle _t03 = new Triangle();
-        private Triangle _t04 = new Triangle();
-        private Triangle _t05 = new Triangle();
-        private Triangle _t06 = new Triangle();
-        private Triangle _t07 = new Triangle();
-        private Triangle _t08 = new Triangle();
-        private Triangle _t09 = new Triangle();
-        private Triangle _t10 = new Triangle();
-        private Triangle _t11 = new Triangle();
-        private Triangle _t12 = new Triangle();
-        private Triangle _t13 = new Triangle();
-        private Triangle _t14 = new Triangle();
-        private Triangle _t15 = new Triangle();
+        private GpioPin _dataPin;
+        private GpioPin _clockPin;
+        private GpioPin _latchPin;
 
-        private readonly List<Triangle> _ts = new List<Triangle>();
+        private int _whiteLedsCount = 0;
+        private int _greenLedsCount = 0;
+        private int _redLedsCount = 0;
+
+        private int[] _whiteLedsA = new int[] { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private int[] _whiteLedsB = new int[] { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private int[] _whiteLedsC = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private int[] _whiteLedsD = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private int[] _whiteLedsE = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 };
+        private int[] _whiteLedsF = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 };
+
+        private int[] _greenLeds = new[] { 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0 };
+        private int[] _redLeds = new[] { 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0 };
 
         public Leds()
         {
-            _ts.Add(_t01);
-            _ts.Add(_t02);
-            _ts.Add(_t03);
-            _ts.Add(_t04);
-            _ts.Add(_t05);
-            _ts.Add(_t06);
-            _ts.Add(_t07);
-            _ts.Add(_t08);
-            _ts.Add(_t09);
-            _ts.Add(_t10);
-            _ts.Add(_t11);
-            _ts.Add(_t12);
-            _ts.Add(_t13);
-            _ts.Add(_t14);
-            _ts.Add(_t15);
+            _dataPin = Pi.Gpio.Pin00;
+            _dataPin.PinMode = GpioPinDriveMode.Output;
+            _clockPin = Pi.Gpio.Pin01;
+            _clockPin.PinMode = GpioPinDriveMode.Output;
+            _latchPin = Pi.Gpio.Pin02;
+            _latchPin.PinMode = GpioPinDriveMode.Output;
         }
 
         public void RandomizeWhite()
         {
-            foreach (var t in _ts)
+            _whiteLedsCount++;
+            if (_whiteLedsCount == 1)
             {
-                t.RandomizeWhite();
+                SetLeds(_whiteLedsA);
+            }
+            if (_whiteLedsCount == 2)
+            {
+                SetLeds(_whiteLedsB);
+            }
+            if (_whiteLedsCount == 3)
+            {
+                SetLeds(_whiteLedsC);
+            }
+            if (_whiteLedsCount == 4)
+            {
+                SetLeds(_whiteLedsD);
+            }
+            if (_whiteLedsCount == 5)
+            {
+                SetLeds(_whiteLedsE);
+            }
+            if (_whiteLedsCount == 6)
+            {
+                SetLeds(_whiteLedsF);
+                _whiteLedsCount = 0;
             }
         }
 
         public void SetGreen()
         {
-            foreach (var t in _ts)
-            {
-                t.SetGreen();
-            }
+            _greenLedsCount = 0;
+            SetLeds(_greenLeds);
         }
 
         public void SetRed()
         {
-            foreach (var t in _ts)
-            {
-                t.SetRed();
-            }
+            _redLedsCount = 0;
+            SetLeds(_redLeds);
         }
 
-        public bool[] GetLeds()
+        private void SetLeds(int[] leds)
         {
-            List<bool> leds = new List<bool>();
-            foreach (var t in _ts)
+            for (int i = 0; i < leds.Length; i++)
             {
-                leds.AddRange(t.GetLeds());
+                _dataPin.Write(0);
+                Thread.Sleep(1);
+                _dataPin.Write(leds[i]);
+
+                Thread.Sleep(1);
+                _latchPin.Write(0);
+                Thread.Sleep(1);
+                _latchPin.Write(1);
             }
-            return leds.ToArray();
+
+            Thread.Sleep(1);
+            _clockPin.Write(0);
+            Thread.Sleep(1);
+            _clockPin.Write(1);
         }
     }
 }

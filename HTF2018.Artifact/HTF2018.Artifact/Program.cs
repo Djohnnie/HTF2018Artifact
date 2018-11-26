@@ -10,6 +10,12 @@ namespace HTF2018.Artifact
 
         static void Main(string[] args)
         {
+            Console.WriteLine("HTF2018 Artifact Console");
+            Console.WriteLine("------------------------");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.Write("Press the ESC key to shut down this console! ");
+
             _poller.Start();
             do
             {
@@ -25,14 +31,7 @@ namespace HTF2018.Artifact
 
         static void MainLoop()
         {
-            Console.Clear();
-            Console.WriteLine("HTF2018 Artifact Console");
-            Console.WriteLine("------------------------");
-            Console.WriteLine();
-            Console.WriteLine($"{_poller.Status}");
             _animator.Animate(_poller.Status);
-            Console.WriteLine();
-            Console.Write("Press the ESC key to shut down this console! ");
             Thread.Sleep(100);
         }
     }

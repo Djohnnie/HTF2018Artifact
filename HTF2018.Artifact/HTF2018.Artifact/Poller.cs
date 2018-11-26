@@ -21,7 +21,7 @@ namespace HTF2018.Artifact
 
         private Poller()
         {
-            _restClient = new RestClient("http://localhost:52100");
+            _restClient = new RestClient("...");
         }
 
         public static Poller Instance => _instance;
@@ -53,20 +53,25 @@ namespace HTF2018.Artifact
         {
             try
             {
-                _status = null;
                 await Task.Delay(500);
+                _status = null;
                 var sw = Stopwatch.StartNew();
                 RestRequest request = new RestRequest("dashboard/history/status", Method.GET);
-                request.AddHeader("htf-identification", "7f395e9b-8eb2-4829-b948-49ca2df65b2c");
+                request.AddHeader("htf-identification", "N2YzOTVlOWItOGViMi00ODI5LWI5NDgtNDljYTJkZjY1YjJj");
                 var response = await _restClient.ExecuteTaskAsync<History>(request);
                 if (response.IsSuccessful && response.Data != null)
                 {
                     _status = response.Data.Status;
+                    Console.WriteLine($"Status: {_status}");
+                }
+                else
+                {
+                    Console.WriteLine($"Unsuccessful response: {response.ErrorMessage}");
                 }
                 sw.Stop();
-                Debug.WriteLine($"POLLING TOOK {sw.ElapsedMilliseconds}ms");
+                Console.WriteLine($"POLLING TOOK {sw.ElapsedMilliseconds}ms");
             }
-            catch { /* DO NOTHING */ }
+            catch (Exception ex) { Console.WriteLine(ex); }
         }
     }
 }

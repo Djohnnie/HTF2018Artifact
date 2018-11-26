@@ -32,7 +32,6 @@
                         _leds.SetRed();
                         break;
                 }
-                var leds = _leds.GetLeds();
             }
             catch { /* DO NOTHING */ }
         }
